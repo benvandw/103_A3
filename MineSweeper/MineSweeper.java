@@ -130,10 +130,13 @@ public class MineSweeper {
         if(!square.isExposed()){
             square.setExposed();
             square.draw(row, col);
-            if(row<0 || row>=ROWS || col<0 || col>=COLS){
-                UI.println(square.getAdjacentMines());
+            UI.println(square.getAdjacentMines());
+            if (square.getAdjacentMines() == 0) {
+                if (row > 0) {exposeSquareAt(row - 1, col);}
+                if (col < COLS - 1) {exposeSquareAt(row, col + 1);}
+                if (row < ROWS - 1) {exposeSquareAt(row + 1, col);}
+                if (col > 0) {exposeSquareAt(row, col - 1);}
             }
-
         }
     }
 
