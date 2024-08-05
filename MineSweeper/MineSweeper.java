@@ -128,10 +128,9 @@ public class MineSweeper {
         if(!square.isExposed()){
             square.setExposed();
             square.draw(row, col);
-            if(square.getAdjacentMines()==0){
-                 // temp to understand
-                UI.drawString("num = "+getVisibleState(),10,10);
-            }
+            getVisibleState(); // used to get the values for adjacent mines not sure if correct
+
+
         }
     }
 
