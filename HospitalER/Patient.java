@@ -98,7 +98,10 @@ public class Patient implements Comparable<Patient>{
      */
     public int compareTo(Patient other){
         /*# YOUR CODE HERE */
-
+        if(this.getPriority() < other.getPriority()) return -1;
+        if(this.getPriority() > other.getPriority()) return 1;
+        if(this.getTotalWaitingTime() < other.getTotalWaitingTime()) return -1;
+        if(this.getTotalWaitingTime() > other.getTotalWaitingTime()) return 1;
         return 0;
     }
 

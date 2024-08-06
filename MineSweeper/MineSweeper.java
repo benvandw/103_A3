@@ -84,10 +84,12 @@ public class MineSweeper {
             if(square.isMarked()){
                 square.unMark();
                 square.draw(row,col);
+            }else{
+                square.mark();
+                square.draw(row, col);
             }
         }
-        square.mark();
-        square.draw(row, col);
+
     }
 
 
@@ -128,9 +130,13 @@ public class MineSweeper {
         if(!square.isExposed()){
             square.setExposed();
             square.draw(row, col);
-            getVisibleState(); // used to get the values for adjacent mines not sure if correct
-
-
+            UI.println(square.getAdjacentMines());
+            if (square.getAdjacentMines() == 0) {
+                if (row > 0) {exposeSquareAt(row - 1, col);}
+                if (col < COLS - 1) {exposeSquareAt(row, col + 1);}
+                if (row < ROWS - 1) {exposeSquareAt(row + 1, col);}
+                if (col > 0) {exposeSquareAt(row, col - 1);}
+            }
         }
     }
 
@@ -142,15 +148,14 @@ public class MineSweeper {
      */
     public boolean hasWon(){
         /*# YOUR CODE HERE */
-        // this is a template its not right yet
         for (int i=0; i<ROWS; i++){
             for (int j=0; j<COLS; j++){
-                if (!squares[i][j].isExposed()){
+                if (!squares[i][j].hasMine()&&!squares[i][j].isExposed()){
                     return false;
                 }
             }
         }
-        return false; // set to false temp while working, should be true
+        return true; // set to false temp while working, should be true
     }
 
     // completed methods
