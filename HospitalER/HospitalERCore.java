@@ -61,6 +61,11 @@ public class HospitalERCore{
         /*# YOUR CODE HERE */
         waitingRoom.clear();
         treatmentRoom.clear();
+        if(usePriorityQueue){
+            waitingRoom = new PriorityQueue<>();
+        }else{
+            waitingRoom = new ArrayDeque<>();
+        }
         // also add statistics clear here once setup
         UI.clearGraphics();
         UI.clearText();
@@ -96,13 +101,7 @@ public class HospitalERCore{
     }
 
     // Additional methods used by run() (You can define more of your own)
-   List <Patient> tempWaiting= new ArrayList<Patient>();
-    public void recursivelyCompare(Patient p1, Patient p2){
 
-        if(p1.compareTo(p2)==-1){
-
-        }
-    }
     /**
      * Report summary statistics about all the patients that have been discharged.
      */

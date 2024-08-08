@@ -78,12 +78,12 @@ public class Patient implements Comparable<Patient>{
     /**
      * Return the Patient's priority
      */
-    public int getPriority(){ return priority; }
+    public Integer getPriority(){ return priority; }
 
     /**
      * Return the Patient's total time spent waiting
      */
-    public int getTotalWaitingTime(){ return totalWaitTime; }
+    public Integer getTotalWaitingTime(){ return totalWaitTime; }
 
     /**
      * Return the Patient's total time in treatment
@@ -98,11 +98,10 @@ public class Patient implements Comparable<Patient>{
      */
     public int compareTo(Patient other){
         /*# YOUR CODE HERE */
-        if(this.getPriority() < other.getPriority()) return -1;
-        if(this.getPriority() > other.getPriority()) return 1;
-        if(this.getTotalWaitingTime() < other.getTotalWaitingTime()) return -1;
-        if(this.getTotalWaitingTime() > other.getTotalWaitingTime()) return 1;
-        return 0;
+      if (this.getPriority() == other.getPriority()){
+          return (this.getTotalWaitingTime().compareTo(other.getTotalWaitingTime()));
+      }
+      return (this.getPriority().compareTo(other.getPriority()));
     }
 
     // Methods for simulating the progress of the Patient through their waiting and their treatments
