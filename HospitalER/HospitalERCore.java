@@ -43,6 +43,8 @@ public class HospitalERCore {
     double numFinTreatment = 0.0;
     double totalTimeInWaiting = 0.0;
     double totalTimeInTreatment = 0.0;
+    double tot1treated = 0.0;
+    double tot1timewaiting = 0.0;
 
     // Fields for the simulation
     private boolean running = false;
@@ -65,12 +67,15 @@ public class HospitalERCore {
         /*# YOUR CODE HERE */
         waitingRoom.clear();
         treatmentRoom.clear();
-        if (usePriorityQueue) {
-            waitingRoom = new PriorityQueue<>();
-        } else {
-            waitingRoom = new ArrayDeque<>();
-        }
-        // also add statistics clear here once setup
+        if (usePriorityQueue) { waitingRoom = new PriorityQueue<>();}
+        else { waitingRoom = new ArrayDeque<>();}
+        //statistics clear
+        numFinTreatment = 0.0;
+        totalTimeInWaiting = 0.0;
+        totalTimeInTreatment = 0.0;
+        tot1treated = 0.0;
+        tot1timewaiting = 0.0;
+        //visual clear
         UI.clearGraphics();
         UI.clearText();
     }
@@ -98,6 +103,9 @@ public class HospitalERCore {
                     compTreatment.add(p);
                     numFinTreatment++;
                     totalTimeInTreatment += p.getTotalTreatmentTime();
+                    if(p.getPriority() ==1 ){
+                        tot1treated++;
+                    }
                 } else {
                     p.advanceCurrentTreatmentByTick();
                 }
@@ -132,13 +140,26 @@ public class HospitalERCore {
      */
     public void reportStatistics() {
         /*# YOUR CODE HERE */
+        double tot1wait = 0.0;
         for (Patient p : waitingRoom) {
             totalTimeInWaiting += p.getTotalWaitingTime();
+            for(Patient p2 : treatmentRoom) {
+                if(p.getPriority() ==1 && p!=p2){
+                    tot1timewaiting+=p.getTotalWaitingTime()+p2.getTotalWaitingTime();
+                    tot1wait++;
+                }
+            }
+
         }
         double totalTime = totalTimeInTreatment +totalTimeInWaiting;
         double totAvgWaitingTime = totalTime / (waitingRoom.size()+numFinTreatment);
+        double tot1ever = tot1wait+tot1treated;
+        double totTime1wating = tot1timewaiting / tot1ever; // doesnt account for those in the waiting room find num of pri 1 in waiting -- does now?
         UI.println("average total waiting = "+totAvgWaitingTime);
         UI.println("number of treatments = "+numFinTreatment);
+        UI.println("total Pri 1 treated = "+tot1treated);
+        UI.println("total pri 1 waiting  = "+totTime1wating);
+
 
 
 
