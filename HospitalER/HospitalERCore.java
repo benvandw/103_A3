@@ -96,7 +96,8 @@ public class HospitalERCore {
             for (Patient p : treatmentRoom) {
                 if (p.currentTreatmentFinished()) {
                     compTreatment.add(p);
-
+                    numFinTreatment++;
+                    totalTimeInTreatment += p.getTotalTreatmentTime();
                 } else {
                     p.advanceCurrentTreatmentByTick();
                 }
@@ -131,9 +132,16 @@ public class HospitalERCore {
      */
     public void reportStatistics() {
         /*# YOUR CODE HERE */
-        for (Patient p : treatmentRoom) {
-            totalTimeInTreatment += p.getTotalTreatmentTime()
+        for (Patient p : waitingRoom) {
+            totalTimeInWaiting += p.getTotalWaitingTime();
         }
+        double totalTime = totalTimeInTreatment +totalTimeInWaiting;
+        double totAvgWaitingTime = totalTime / (waitingRoom.size()+numFinTreatment);
+        UI.println("average total waiting = "+totAvgWaitingTime);
+        UI.println("number of treatments = "+numFinTreatment);
+
+
+
     }
 
 
