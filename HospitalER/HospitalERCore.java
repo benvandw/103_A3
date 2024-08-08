@@ -103,12 +103,8 @@ public class HospitalERCore {
                     compTreatment.add(p);
                     numFinTreatment++;
                     totalTimeInTreatment += p.getTotalTreatmentTime();
-                    if(p.getPriority() ==1 ){
-                        tot1treated++;
-                    }
-                } else {
-                    p.advanceCurrentTreatmentByTick();
-                }
+                    if(p.getPriority() ==1 ){ tot1treated++;}
+                } else { p.advanceCurrentTreatmentByTick();}
             }
             treatmentRoom.removeAll(compTreatment);
             for (Patient allPatients : waitingRoom) {
@@ -149,7 +145,6 @@ public class HospitalERCore {
                     tot1wait++;
                 }
             }
-
         }
         double totalTime = totalTimeInTreatment +totalTimeInWaiting;
         double totAvgWaitingTime = totalTime / (waitingRoom.size()+numFinTreatment);
@@ -159,10 +154,6 @@ public class HospitalERCore {
         UI.println("number of treatments = "+numFinTreatment);
         UI.println("total Pri 1 treated = "+tot1treated);
         UI.println("total pri 1 waiting  = "+totTime1wating);
-
-
-
-
     }
 
 
