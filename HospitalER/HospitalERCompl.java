@@ -41,7 +41,7 @@ public class HospitalERCompl {
     private Queue<Patient> waitingRoom = new ArrayDeque<Patient>();
     private static final int MAX_PATIENTS = 5;   // max number of patients currently being treated
     private final Set<Patient> treatmentRoom = new HashSet<Patient>();
-
+    public boolean inPriorityQue = false;
 
     // Copy the code from HospitalERCore and then modify/extend to handle multiple departments
     /*# YOUR CODE HERE */
@@ -74,8 +74,10 @@ public class HospitalERCompl {
         treatmentRoom.clear();
         if (usePriorityQueue) {
             waitingRoom = new PriorityQueue<>();
+            inPriorityQue = true;
         } else {
             waitingRoom = new ArrayDeque<>();
+            inPriorityQue = false;
         }
         //statistics clear
         numFinTreatment = 0.0;
@@ -91,11 +93,13 @@ public class HospitalERCompl {
     /**
      * Main loop of the simulation
      */
+
     public void run() {
         if (running) {
             return;
         } // don't start simulation if already running one!
         running = true;
+        initialiseDepartments();
         while (running) {         // each time step, check whether the simulation should pause.
 
             // Hint: if you are stepping through a set, you can't remove
@@ -169,7 +173,20 @@ public class HospitalERCompl {
         UI.println("total pri 1 waiting  = " + totTime1wating);
     }
 
-
+    public void initialiseDepartments(){
+        // create each new department with values,
+        // add each department to the map of departments
+        Department ER = new Department("ER",8,inPriorityQue);
+        Department XRay = new Department("X-Ray",3,inPriorityQue);
+        Department MRI = new Department("MRI",1,inPriorityQue);
+        Department UltraSound = new Department("UltraSound",2,inPriorityQue);
+        Department Surgery = new Department("Surgery",3,inPriorityQue);
+        departments.put("ER", ER);
+        departments.put("X-Ray", XRay);
+        departments.put("NRI", MRI);
+        departments.put("UltraSound", UltraSound);
+        departments.put("Surgery", Surgery);
+    }
     // METHODS FOR THE GUI AND VISUALISATION
 
     /**
@@ -237,7 +254,7 @@ public class HospitalERCompl {
      * main:  Construct a new HospitalERCore object, setting up the GUI, and resetting
      */
     public static void main(String[] arguments) {
-        HospitalERCore er = new HospitalERCore();
+        HospitalERCompl er = new HospitalERCompl();
         er.setupGUI();
         er.reset(false);   // initialise with an ordinary queue.
     }

@@ -35,6 +35,13 @@ public class Department{
      */
     public Department(String name, int maxPatients, boolean usePriQueue){
         /*# YOUR CODE HERE */
+        this.maxPatients = maxPatients;
+        this.name = name;
+        if(usePriQueue){
+            UI.println("priorityQue in use"); // test code
+        }else{
+            UI.println("priorityQue not in use"); // test code
+        }
 
     }
 
