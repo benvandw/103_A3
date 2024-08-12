@@ -103,7 +103,10 @@ public class HospitalERCore {
                     compTreatment.add(p);
                     numFinTreatment++;
                     totalTimeInTreatment += p.getTotalTreatmentTime();
-                    if(p.getPriority() ==1 ){ tot1treated++;}
+                    if(p.getPriority() ==1 ){
+                        tot1treated++;
+                        tot1timewaiting += p.getTotalWaitingTime();
+                    }
                 } else { p.advanceCurrentTreatmentByTick();}
             }
             treatmentRoom.removeAll(compTreatment);
