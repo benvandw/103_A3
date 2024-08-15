@@ -10,6 +10,7 @@
 
 import ecs100.*;
 import java.awt.Color;
+import java.util.Arrays;
 import javax.swing.JButton;
 
 /**
@@ -130,7 +131,8 @@ public class MineSweeper {
         if(!square.isExposed()){
             square.setExposed();
             square.draw(row, col);
-            UI.println(square.getAdjacentMines());
+            UI.println("hidden layer"+square.getAdjacentMines());
+            UI.println("visable"+ Arrays.deepToString(getVisibleState()));
             if (square.getAdjacentMines() == 0) {
                 if (row > 0) {exposeSquareAt(row - 1, col);}
                 if (col < COLS - 1) {exposeSquareAt(row, col + 1);}
@@ -184,6 +186,7 @@ public class MineSweeper {
      */
     public void makeGrid(){
         UI.clearGraphics();
+        UI.clearText(); // my code
         this.squares = new Square[ROWS][COLS];
         for (int row=0; row < ROWS; row++){
             for (int col=0; col<COLS; col++){

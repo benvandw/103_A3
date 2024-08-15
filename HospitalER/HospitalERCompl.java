@@ -10,21 +10,20 @@
 
 import ecs100.*;
 import java.util.*;
-import java.io.*;
 
 /**
  * Simulation of a Hospital ER
- * 
+ * <p>
  * The hospital has a collection of Departments, including the ER department, each of which has
  *  and a treatment room.
- * 
+ * <p>
  * When patients arrive at the hospital, they are immediately assessed by the
  *  triage team who determine the priority of the patient and (unrealistically) a sequence of treatments 
  *  that the patient will need.
- *
+ * <p>
  * The simulation should move patients through the departments for each of the required treatments,
  * finally discharging patients when they have completed their final treatment.
- *
+ * <p>
  *  READ THE ASSIGNMENT PAGE!
  */
 
@@ -49,7 +48,7 @@ public class HospitalERCompl {
     double totalTimeInWaiting = 0.0;
     double totalTimeInTreatment = 0.0;
     double tot1treated = 0.0;
-    double tot1timewaiting = 0.0;
+    double tot1TimeWaiting = 0.0;
 
     // Fields for the simulation
     private boolean running = false;
@@ -84,7 +83,7 @@ public class HospitalERCompl {
         totalTimeInWaiting = 0.0;
         totalTimeInTreatment = 0.0;
         tot1treated = 0.0;
-        tot1timewaiting = 0.0;
+        tot1TimeWaiting = 0.0;
         //visual clear
         UI.clearGraphics();
         UI.clearText();
@@ -100,49 +99,23 @@ public class HospitalERCompl {
         } // don't start simulation if already running one!
         running = true;
         initialiseDepartments();
-        while (running) {         // each time step, check whether the simulation should pause.
 
-            // Hint: if you are stepping through a set, you can't remove
-            //   items from the set inside the loop!
-            //   If you need to remove items, you can add the items to a
-            //   temporary list, and after the loop is done, remove all
-            //   the items on the temporary list from the set.
+        while (running) {
+            // each time step, check whether the simulation should pause.
             time++;
-            /*# YOUR CODE HERE */
-            List<Patient> compTreatment = new ArrayList<>();
-            for (Patient p : treatmentRoom) {
-                if (p.currentTreatmentFinished()) {
-                    compTreatment.add(p);
-                    numFinTreatment++;
-                    totalTimeInTreatment += p.getTotalTreatmentTime();
-                    if (p.getPriority() == 1) {
-                        tot1treated++;
-                        tot1timewaiting += p.getTotalWaitingTime();
-                    }
-                } else {
-                    p.advanceCurrentTreatmentByTick();
-                }
-            }
-            treatmentRoom.removeAll(compTreatment);
-            for (Patient allPatients : waitingRoom) {
-                allPatients.waitForATick();
-            }
-
-
-            if (treatmentRoom.size() < MAX_PATIENTS && !waitingRoom.isEmpty()) {
-                treatmentRoom.add(waitingRoom.poll());
-            }
-
-            // Gets any new patient that has arrived and adds them to the waiting room
             Patient newPatient = PatientGenerator.getNextPatient(time);
             if (newPatient != null) {
+                departments.get("ER").addPatient(newPatient);
                 UI.println(time + ": Arrived: " + newPatient);
                 waitingRoom.offer(newPatient);
+
+            }
+            for(Department department : departments.values()) {
+                department.processPatient(this);
             }
             redraw();
             UI.sleep(delay);
         }
-        // paused, so report current statistics
         reportStatistics();
     }
 
@@ -152,26 +125,41 @@ public class HospitalERCompl {
      * Report summary statistics about all the patients that have been discharged.
      */
     public void reportStatistics() {
-        /*# YOUR CODE HERE */
-        double tot1wait = 0.0;
+        double totalWaitingTime = 0.0;
+        double totalTreatmentTime = 0.0;
+        double totalPriority1WaitingTime = 0.0;
+        int priority1PatientsCount = 0;
+        double totalPatientsCount = numFinTreatment + waitingRoom.size();
+
+        // Calculate waiting time for patients in the waiting room
         for (Patient p : waitingRoom) {
-            totalTimeInWaiting += p.getTotalWaitingTime();
-            for (Patient p2 : treatmentRoom) {
-                if (p.getPriority() == 1 && p != p2) {
-                    tot1timewaiting += p.getTotalWaitingTime() + p2.getTotalWaitingTime();
-                    tot1wait++;
-                }
+            totalWaitingTime += p.getTotalWaitingTime();
+            if (p.getPriority() == 1) {
+                totalPriority1WaitingTime += p.getTotalWaitingTime();
+                priority1PatientsCount++;
             }
         }
-        double totalTime = totalTimeInTreatment + totalTimeInWaiting;
-        double totAvgWaitingTime = totalTime / (waitingRoom.size() + numFinTreatment);
-        double tot1ever = tot1wait + tot1treated;
-        double totTime1wating = tot1timewaiting / tot1ever; // doesnt account for those in the waiting room find num of pri 1 in waiting -- does now?
-        UI.println("average total waiting = " + totAvgWaitingTime);
-        UI.println("number of treatments = " + numFinTreatment);
-        UI.println("total Pri 1 treated = " + tot1treated);
-        UI.println("total pri 1 waiting  = " + totTime1wating);
+
+        // Calculate waiting time for patients in treatment
+        for (Patient p : treatmentRoom) {
+            totalWaitingTime += p.getTotalWaitingTime();
+            if (p.getPriority() == 1) {
+                totalPriority1WaitingTime += p.getTotalWaitingTime();
+                priority1PatientsCount++;
+            }
+        }
+
+        // Calculate average waiting times
+        double avgTotalWaitingTime = totalPatientsCount > 0 ? totalWaitingTime / totalPatientsCount : 0;
+        double avgPriority1WaitingTime = priority1PatientsCount > 0 ? totalPriority1WaitingTime / priority1PatientsCount : 0;
+
+        // Report statistics
+        UI.println("Average total waiting time: " + avgTotalWaitingTime);
+        UI.println("Number of treatments: " + numFinTreatment);
+        UI.println("Total priority 1 treated: " + numFinTreatment); // Adjust based on how priority 1 count is handled
+        UI.println("Average waiting time for priority 1 patients: " + avgPriority1WaitingTime);
     }
+
 
     public void initialiseDepartments(){
         // create each new department with values,
@@ -183,10 +171,36 @@ public class HospitalERCompl {
         Department Surgery = new Department("Surgery",3,inPriorityQue);
         departments.put("ER", ER);
         departments.put("X-Ray", XRay);
-        departments.put("NRI", MRI);
+        departments.put("MRI", MRI);
         departments.put("UltraSound", UltraSound);
         departments.put("Surgery", Surgery);
     }
+
+    public void nextDepartment(Patient p) {
+        if (p.allTreatmentsCompleted()) {
+            discharge(p);
+        } else {
+            String nextDepartmentName = p.getCurrentDepartment();
+            Department nextDepartment = departments.get(nextDepartmentName);
+            if (nextDepartment != null) {
+                nextDepartment.addPatient(p);
+            } else {
+                UI.println("Error: Department not found for " + nextDepartmentName);
+            }
+        }
+    }
+    private Set<Patient> dischargedPatients = new HashSet<>();
+
+    public void discharge(Patient p){
+        if (!dischargedPatients.contains(p)) { // Check if the patient has already been discharged
+            numFinTreatment++;
+            totalTimeInTreatment += p.getTotalTreatmentTime();
+            UI.println("Discharged: " + p);
+            dischargedPatients.add(p); // Mark the patient as discharged
+        }
+    }
+
+
     // METHODS FOR THE GUI AND VISUALISATION
 
     /**
@@ -230,23 +244,12 @@ public class HospitalERCompl {
         UI.drawString("Treating Patients", 5, 15);
         UI.drawString("Waiting Queues", 200, 15);
         UI.drawLine(0, 32, 400, 32);
-
-        // Draw the treatment room and the waiting room:
         double y = 80;
-        UI.setFontSize(14);
-        UI.drawString("ER", 0, y - 35);
-        double x = 10;
-        UI.drawRect(x - 5, y - 30, MAX_PATIENTS * 10, 30);  // box to show max number of patients
-        for (Patient p : treatmentRoom) {
-            p.redraw(x, y);
-            x += 10;
+        for(Department department : departments.values()) {
+            department.redraw(y);
+            UI.drawLine(0,y+2,400,y+2);
+            y+=50;
         }
-        x = 200;
-        for (Patient p : waitingRoom) {
-            p.redraw(x, y);
-            x += 10;
-        }
-        UI.drawLine(0, y + 2, 400, y + 2);
     }
 
 

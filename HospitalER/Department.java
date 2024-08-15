@@ -35,20 +35,55 @@ public class Department{
      */
     public Department(String name, int maxPatients, boolean usePriQueue){
         /*# YOUR CODE HERE */
-        this.maxPatients = maxPatients;
         this.name = name;
-        if(usePriQueue){
-            UI.println("priorityQue in use"); // test code
-        }else{
-            UI.println("priorityQue not in use"); // test code
-        }
-
+        this.maxPatients = maxPatients;
+        this.treatmentRoom = new HashSet<>();
+        this.waitingRoom = usePriQueue? new PriorityQueue<>():new LinkedList<>();
     }
 
     // Methods 
 
     /*# YOUR CODE HERE */
+    public void addPatient(Patient patient){
+        if(treatmentRoom.size()<maxPatients){
+            treatmentRoom.add(patient);
+        }else{
+            waitingRoom.offer(patient);
+        }
+    }
 
+    public void processPatient(HospitalERCompl hospitalER) {
+        while (treatmentRoom.size() < maxPatients && !waitingRoom.isEmpty()) {
+            treatmentRoom.add(waitingRoom.poll());
+        }
+
+        List<Patient> finishedPatients = new ArrayList<>();
+
+        for (Patient p : treatmentRoom) {
+            if (!p.allTreatmentsCompleted()) {
+                p.advanceCurrentTreatmentByTick();
+
+                if (p.currentTreatmentFinished()) {
+                    p.removeCurrentTreatment();
+                    if (p.allTreatmentsCompleted()) {
+                        finishedPatients.add(p);
+                    } else {
+                        hospitalER.nextDepartment(p);
+                    }
+                }
+            } else {
+                finishedPatients.add(p);
+            }
+        }
+
+        // Discharge patients
+        for (Patient p : finishedPatients) {
+            if (treatmentRoom.contains(p)) {
+                treatmentRoom.remove(p);
+                hospitalER.discharge(p);
+            }
+        }
+    }
     /**
      * Draw the department: the patients being treated and the patients waiting
      * You may need to change the names if your fields had different names
