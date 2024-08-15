@@ -38,17 +38,15 @@ public class HospitalERCompl {
 
     private Map<String, Department> departments = new HashMap<String, Department>();
     private Queue<Patient> waitingRoom = new ArrayDeque<Patient>();
-    private static final int MAX_PATIENTS = 5;   // max number of patients currently being treated
     private final Set<Patient> treatmentRoom = new HashSet<Patient>();
     public boolean inPriorityQue = false;
 
     // Copy the code from HospitalERCore and then modify/extend to handle multiple departments
     /*# YOUR CODE HERE */
-    double numFinTreatment = 0.0;
-    double totalTimeInWaiting = 0.0;
-    double totalTimeInTreatment = 0.0;
-    double tot1treated = 0.0;
-    double tot1TimeWaiting = 0.0;
+    int numFinTreatment = 0;
+    int totalTimeInWaiting = 0;
+    int tot1treated = 0;
+    int tot1TimeWaiting = 0;
 
     // Fields for the simulation
     private boolean running = false;
@@ -79,11 +77,10 @@ public class HospitalERCompl {
             inPriorityQue = false;
         }
         //statistics clear
-        numFinTreatment = 0.0;
-        totalTimeInWaiting = 0.0;
-        totalTimeInTreatment = 0.0;
-        tot1treated = 0.0;
-        tot1TimeWaiting = 0.0;
+        numFinTreatment = 0;
+        totalTimeInWaiting = 0;
+        tot1treated = 0;
+        tot1TimeWaiting = 0;
         //visual clear
         UI.clearGraphics();
         UI.clearText();
@@ -110,7 +107,6 @@ public class HospitalERCompl {
                 departments.get("ER").addPatient(newPatient);
                 UI.println(time + ": Arrived: " + newPatient);
             }
-
             redraw();
             UI.sleep(delay);
         }
@@ -122,50 +118,19 @@ public class HospitalERCompl {
     /**
      * Report summary statistics about all the patients that have been discharged.
      */
+
     public void reportStatistics() {
-        double totalWaitingTime = 0.0;
-        double totalTreatmentTime = 0.0;
-        double totalPriority1WaitingTime = 0.0;
-        int priority1PatientsCount = 0;
-
-        // Ensure that dischargedPatients contains all discharged patients
-        // Calculate waiting time for patients in the waiting room
-        for (Patient p : waitingRoom) {
-            totalWaitingTime += p.getTotalWaitingTime();
-            if (p.getPriority() == 1) {
-                totalPriority1WaitingTime += p.getTotalWaitingTime();
-                priority1PatientsCount++;
-            }
-        }
-
-        // Calculate waiting time for patients in treatment
-        for (Patient p : treatmentRoom) {
-            totalTreatmentTime += p.getTotalTreatmentTime();
-            if (p.getPriority() == 1) {
-                totalPriority1WaitingTime += p.getTotalWaitingTime();
-                priority1PatientsCount++;
-            }
-        }
-
-        // Calculate waiting time for discharged patients
-        for (Patient p : dischargedPatients) {
-            totalWaitingTime += p.getTotalWaitingTime();
-            if (p.getPriority() == 1) {
-                totalPriority1WaitingTime += p.getTotalWaitingTime();
-                priority1PatientsCount++;
-            }
-        }
-
         // Calculate average waiting times
-        double avgTotalWaitingTime = numFinTreatment > 0 ? totalWaitingTime / numFinTreatment : 0; // this is wrong
-
-        double avgPriority1WaitingTime = priority1PatientsCount > 0 ? totalPriority1WaitingTime / priority1PatientsCount : 0;
-
-        // Report statistics
-        UI.println("Average total waiting time: " + avgTotalWaitingTime);
-        UI.println("Number of treatments: " + numFinTreatment);
+        //double avgTotalWaitingTime = totalTimeInWaiting / numFinTreatment;
+        //double avgPriority1WaitingTime = tot1TimeWaiting/ tot1treated;
+        double averageTotalP1WaitingTime = tot1treated == 0 ? 0 : (double) tot1TimeWaiting / tot1treated;
+        double avgTotalWaitingTime = numFinTreatment == 0 ? 0 : (double) totalTimeInWaiting / numFinTreatment;
+        //if(numFinTreatment == 0.0){avgTotalWaitingTime = totalTimeInWaiting;UI.println("no fin treat");}
+       // if(tot1treated == 0.0){avgPriority1WaitingTime = tot1TimeWaiting;UI.println("no fin treat");}
+        UI.println("Average waiting time: " + avgTotalWaitingTime);
+        UI.println("Average waiting time for priority 1 patients: " + averageTotalP1WaitingTime);
+        UI.println("Total Treated: " + numFinTreatment);
         UI.println("Total priority 1 treated: " + tot1treated);
-        UI.println("Average waiting time for priority 1 patients: " + avgPriority1WaitingTime);
     }
 
 
@@ -193,21 +158,24 @@ public class HospitalERCompl {
             Department nextDepartment = departments.get(nextDepartmentName);
             if (nextDepartment != null) {
                 nextDepartment.addPatient(p);
-                UI.println("added patient to "+nextDepartmentName);
             } else {
                 UI.println("Error: Department not found for " + nextDepartmentName);
             }
         }
     }
-    private Set<Patient> dischargedPatients = new HashSet<>();
+
 
     public void discharge(Patient p){
-        if (!dischargedPatients.contains(p)) { // Check if the patient has already been discharged
-            numFinTreatment++;
-            totalTimeInTreatment += p.getTotalTreatmentTime();
-            UI.println("Discharged: " + p);
-            dischargedPatients.add(p); // Mark the patient as discharged
+         // Check if the patient has already been discharged
+        numFinTreatment++;
+        totalTimeInWaiting += p.getTotalWaitingTime();
+        UI.println(p.getTotalWaitingTime());
+        if (p.getPriority() ==1){
+            tot1treated++;
+            tot1TimeWaiting += p.getTotalWaitingTime();
+
         }
+        UI.println("Discharged: " + p);
     }
 
 

@@ -98,7 +98,7 @@ public class Patient implements Comparable<Patient>{
      */
     public int compareTo(Patient other){
         /*# YOUR CODE HERE */
-      if (this.getPriority() == other.getPriority()){
+      if (Objects.equals(this.getPriority(), other.getPriority())){
           return (this.getTotalWaitingTime().compareTo(other.getTotalWaitingTime()));
       }
       return (this.getPriority().compareTo(other.getPriority()));
