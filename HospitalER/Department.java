@@ -52,35 +52,27 @@ public class Department{
         }
     }
 
-    public void processPatient(HospitalERCompl hospitalER) {
+    public void processPatient(HospitalERCompl hospitalER) {// curerntly patients appear in multiple areas at once
+        List<Patient> finishedPatients = new ArrayList<>();
         while (treatmentRoom.size() < maxPatients && !waitingRoom.isEmpty()) {
             treatmentRoom.add(waitingRoom.poll());
         }
-
-        List<Patient> finishedPatients = new ArrayList<>();
-
         for (Patient p : treatmentRoom) {
-            if (!p.allTreatmentsCompleted()) {
-                p.advanceCurrentTreatmentByTick();
-
-                if (p.currentTreatmentFinished()) {
-                    p.removeCurrentTreatment();
-                    if (p.allTreatmentsCompleted()) {
-                        finishedPatients.add(p);
-                    } else {
-                        hospitalER.nextDepartment(p);
-                    }
-                }
-            } else {
+            if (p.currentTreatmentFinished()){
                 finishedPatients.add(p);
+            }else{
+                p.advanceCurrentTreatmentByTick();
             }
         }
-
-        // Discharge patients
         for (Patient p : finishedPatients) {
             if (treatmentRoom.contains(p)) {
                 treatmentRoom.remove(p);
-                hospitalER.discharge(p);
+                p.removeCurrentTreatment();
+                if (p.allTreatmentsCompleted()){
+                    hospitalER.discharge(p);
+                }else{
+                    hospitalER.nextDepartment(p);
+                }
             }
         }
     }

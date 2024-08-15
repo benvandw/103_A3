@@ -101,18 +101,16 @@ public class HospitalERCompl {
         initialiseDepartments();
 
         while (running) {
-            // each time step, check whether the simulation should pause.
             time++;
+            for(Department department : departments.values()) {
+                department.processPatient(this);
+            }
             Patient newPatient = PatientGenerator.getNextPatient(time);
             if (newPatient != null) {
                 departments.get("ER").addPatient(newPatient);
                 UI.println(time + ": Arrived: " + newPatient);
-                waitingRoom.offer(newPatient);
+            }
 
-            }
-            for(Department department : departments.values()) {
-                department.processPatient(this);
-            }
             redraw();
             UI.sleep(delay);
         }
@@ -129,8 +127,8 @@ public class HospitalERCompl {
         double totalTreatmentTime = 0.0;
         double totalPriority1WaitingTime = 0.0;
         int priority1PatientsCount = 0;
-        double totalPatientsCount = numFinTreatment + waitingRoom.size();
 
+        // Ensure that dischargedPatients contains all discharged patients
         // Calculate waiting time for patients in the waiting room
         for (Patient p : waitingRoom) {
             totalWaitingTime += p.getTotalWaitingTime();
@@ -142,6 +140,15 @@ public class HospitalERCompl {
 
         // Calculate waiting time for patients in treatment
         for (Patient p : treatmentRoom) {
+            totalTreatmentTime += p.getTotalTreatmentTime();
+            if (p.getPriority() == 1) {
+                totalPriority1WaitingTime += p.getTotalWaitingTime();
+                priority1PatientsCount++;
+            }
+        }
+
+        // Calculate waiting time for discharged patients
+        for (Patient p : dischargedPatients) {
             totalWaitingTime += p.getTotalWaitingTime();
             if (p.getPriority() == 1) {
                 totalPriority1WaitingTime += p.getTotalWaitingTime();
@@ -150,15 +157,17 @@ public class HospitalERCompl {
         }
 
         // Calculate average waiting times
-        double avgTotalWaitingTime = totalPatientsCount > 0 ? totalWaitingTime / totalPatientsCount : 0;
+        double avgTotalWaitingTime = numFinTreatment > 0 ? totalWaitingTime / numFinTreatment : 0; // this is wrong
+
         double avgPriority1WaitingTime = priority1PatientsCount > 0 ? totalPriority1WaitingTime / priority1PatientsCount : 0;
 
         // Report statistics
         UI.println("Average total waiting time: " + avgTotalWaitingTime);
         UI.println("Number of treatments: " + numFinTreatment);
-        UI.println("Total priority 1 treated: " + numFinTreatment); // Adjust based on how priority 1 count is handled
+        UI.println("Total priority 1 treated: " + tot1treated);
         UI.println("Average waiting time for priority 1 patients: " + avgPriority1WaitingTime);
     }
+
 
 
     public void initialiseDepartments(){
@@ -184,6 +193,7 @@ public class HospitalERCompl {
             Department nextDepartment = departments.get(nextDepartmentName);
             if (nextDepartment != null) {
                 nextDepartment.addPatient(p);
+                UI.println("added patient to "+nextDepartmentName);
             } else {
                 UI.println("Error: Department not found for " + nextDepartmentName);
             }
