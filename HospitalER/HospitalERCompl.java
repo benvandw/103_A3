@@ -120,13 +120,8 @@ public class HospitalERCompl {
      */
 
     public void reportStatistics() {
-        // Calculate average waiting times
-        //double avgTotalWaitingTime = totalTimeInWaiting / numFinTreatment;
-        //double avgPriority1WaitingTime = tot1TimeWaiting/ tot1treated;
         double averageTotalP1WaitingTime = tot1treated == 0 ? 0 : (double) tot1TimeWaiting / tot1treated;
         double avgTotalWaitingTime = numFinTreatment == 0 ? 0 : (double) totalTimeInWaiting / numFinTreatment;
-        //if(numFinTreatment == 0.0){avgTotalWaitingTime = totalTimeInWaiting;UI.println("no fin treat");}
-       // if(tot1treated == 0.0){avgPriority1WaitingTime = tot1TimeWaiting;UI.println("no fin treat");}
         UI.println("Average waiting time: " + avgTotalWaitingTime);
         UI.println("Average waiting time for priority 1 patients: " + averageTotalP1WaitingTime);
         UI.println("Total Treated: " + numFinTreatment);
@@ -166,14 +161,12 @@ public class HospitalERCompl {
 
 
     public void discharge(Patient p){
-         // Check if the patient has already been discharged
         numFinTreatment++;
         totalTimeInWaiting += p.getTotalWaitingTime();
         UI.println(p.getTotalWaitingTime());
         if (p.getPriority() ==1){
             tot1treated++;
             tot1TimeWaiting += p.getTotalWaitingTime();
-
         }
         UI.println("Discharged: " + p);
     }
